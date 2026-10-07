@@ -83,6 +83,19 @@ identity_providers:
         scopes: ['openid', 'profile', 'email', 'groups']
         token_endpoint_auth_method: 'client_secret_basic'
 
+      # Coolify dashboard login (Settings > Authentication > OpenID Connect). Coolify sends the secret in the body.
+      - client_id: 'coolify'
+        client_name: 'Coolify'
+        client_secret: '{{ mustEnv "OIDC_COOLIFY_SECRET_DIGEST_B64" | b64dec }}'
+        authorization_policy: 'infra_admins'
+        consent_mode: 'implicit'
+        require_pkce: true
+        pkce_challenge_method: 'S256'
+        redirect_uris:
+          - 'https://coolify.bulbashenko.com/auth/oidc/callback'
+        scopes: ['openid', 'profile', 'email']
+        token_endpoint_auth_method: 'client_secret_post'
+
       # Stalwart's admin console and account manager (client id is fixed by the WebUI bundle).
       - client_id: 'stalwart-webui'
         client_name: 'Mail settings'

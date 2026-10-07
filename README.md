@@ -92,6 +92,8 @@ The app needs these settings:
    ```
 2. Add an `access_control` rule for its domain in `instance.yml`. Without one, only `infra-admins` get in.
 
+   If the app's labels are not yours to edit (a Coolify one-click service), put the middleware and a higher-priority router in a Traefik dynamic configuration file instead (Coolify: Servers → Proxy → Dynamic Configurations). The middleware address is `http://authelia:9091/api/authz/forward-auth`, since Authelia is on the `coolify` network under its service name.
+
 **App that needs LDAP.** Point it at `ldap://lldap:3890` with base DN `LDAP_BASE_DN`. Bind as a dedicated LLDAP user in the `lldap_strict_readonly` group.
 
 ## Thunderbird
