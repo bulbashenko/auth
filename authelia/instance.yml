@@ -1,0 +1,124 @@
+# yaml-language-server: $schema=https://www.authelia.com/schemas/v4.39/json-schema/configuration.json
+#
+# Deployment-specific part for bulbashenko.com: who may sign in where, and the registered OIDC clients.
+# To add a service: add a client (or an access_control rule for forward-auth), push, redeploy.
+# Client secrets are never stored here, only the PBKDF2 digests passed in through the environment.
+
+access_control:
+  # Forward-auth (Traefik middleware) rules. An app behind the middleware is open to infra admins only, unless a more
+  # specific rule above the catch-all says otherwise (first match wins).
+  default_policy: 'deny'
+  rules:
+    # - domain: 'app.bulbashenko.com'
+    #   subject: 'group:mail-users'
+    #   policy: 'two_factor'
+    - domain: '*.bulbashenko.com'
+      subject: 'group:infra-admins'
+      policy: 'two_factor'
+
+identity_providers:
+  oidc:
+    # The Stalwart WebUI is a browser app that calls the token endpoint directly.
+    cors:
+      endpoints: ['token', 'userinfo', 'revocation']
+      allowed_origins:
+        - 'https://mailadmin.bulbashenko.com'
+
+    authorization_policies:
+      site_admins:
+        default_policy: 'deny'
+        rules:
+          - policy: 'two_factor'
+            subject: 'group:site-admins'
+      infra_admins:
+        default_policy: 'deny'
+        rules:
+          - policy: 'two_factor'
+            subject: 'group:infra-admins'
+      mail_users:
+        default_policy: 'deny'
+        rules:
+          - policy: 'two_factor'
+            subject: 'group:mail-users'
+
+    lifespans:
+      custom:
+        # Mail clients refresh their access token every hour while running; a month away still needs a new sign-in.
+        mail_client:
+          access_token: '1 hour'
+          refresh_token: '30 days'
+
+    claims_policies:
+      # Stalwart validates JWT access tokens offline and reads the identity from them.
+      mail:
+        access_token: ['preferred_username', 'email', 'name']
+      # Cloudflare Access only reads claims from the ID token.
+      cloudflare:
+        id_token: ['preferred_username', 'email', 'email_verified', 'name', 'groups']
+
+    clients:
+      - client_id: 'cloudflare-access'
+        client_name: 'Cloudflare Access'
+        client_secret: '{{ mustEnv "OIDC_CLOUDFLARE_SECRET_DIGEST" }}'
+        authorization_policy: 'infra_admins'
+        consent_mode: 'implicit'
+        require_pkce: true
+        pkce_challenge_method: 'S256'
+        redirect_uris:
+          - 'https://{{ mustEnv "CLOUDFLARE_TEAM_DOMAIN" }}/cdn-cgi/access/callback'
+        scopes: ['openid', 'profile', 'email', 'groups']
+        claims_policy: 'cloudflare'
+        token_endpoint_auth_method: 'client_secret_basic'
+
+      - client_id: 'bulbashenko-site'
+        client_name: 'bulbashenko.com admin'
+        client_secret: '{{ mustEnv "OIDC_SITE_SECRET_DIGEST" }}'
+        authorization_policy: 'site_admins'
+        consent_mode: 'implicit'
+        require_pkce: true
+        pkce_challenge_method: 'S256'
+        redirect_uris:
+          - 'https://bulbashenko.com/api/auth/oidc/callback'
+          - 'http://localhost:3000/api/auth/oidc/callback'
+        scopes: ['openid', 'profile', 'email', 'groups']
+        token_endpoint_auth_method: 'client_secret_basic'
+
+      # Stalwart's admin console and account manager (client id is fixed by the WebUI bundle).
+      - client_id: 'stalwart-webui'
+        client_name: 'Mail settings'
+        public: true
+        authorization_policy: 'mail_users'
+        consent_mode: 'pre-configured'
+        pre_configured_consent_duration: '1 year'
+        pkce_challenge_method: 'S256'
+        redirect_uris:
+          - 'https://mailadmin.bulbashenko.com/admin/oauth/callback'
+          - 'https://mailadmin.bulbashenko.com/account/oauth/callback'
+        audience: ['stalwart']
+        requested_audience_mode: 'implicit'
+        scopes: ['openid', 'email', 'profile', 'offline_access']
+        response_types: ['code']
+        grant_types: ['authorization_code', 'refresh_token']
+        access_token_signed_response_alg: 'RS256'
+        claims_policy: 'mail'
+        token_endpoint_auth_method: 'none'
+
+      # Thunderbird 155+ custom OAuth (see thunderbird-addon/). It listens on a random loopback port.
+      - client_id: 'thunderbird'
+        client_name: 'Thunderbird'
+        public: true
+        authorization_policy: 'mail_users'
+        consent_mode: 'pre-configured'
+        pre_configured_consent_duration: '1 year'
+        pkce_challenge_method: 'S256'
+        redirect_uris:
+          - 'http://127.0.0.1/'
+        audience: ['stalwart']
+        requested_audience_mode: 'implicit'
+        scopes: ['openid', 'email', 'profile', 'offline_access']
+        response_types: ['code']
+        grant_types: ['authorization_code', 'refresh_token']
+        access_token_signed_response_alg: 'RS256'
+        claims_policy: 'mail'
+        lifespan: 'mail_client'
+        token_endpoint_auth_method: 'none'

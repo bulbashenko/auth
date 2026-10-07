@@ -1,0 +1,82 @@
+# yaml-language-server: $schema=https://www.authelia.com/schemas/v4.39/json-schema/configuration.json
+#
+# Generic part of the Authelia configuration. It only reads environment variables (see compose.yml), so it can be
+# reused as is. Everything specific to one deployment (OIDC clients, CORS origins, access rules) is in instance.yml.
+# Secrets are not here: they come from AUTHELIA_* environment variables.
+
+theme: auto
+
+server:
+  address: 'tcp://:9091'
+
+log:
+  level: '{{ env "AUTH_LOG_LEVEL" | default "info" }}'
+
+totp:
+  issuer: '{{ mustEnv "AUTH_COOKIE_DOMAIN" }}'
+
+webauthn:
+  display_name: '{{ mustEnv "AUTH_COOKIE_DOMAIN" }}'
+  # A passkey alone signs the user in. Only authenticators that verify the user (PIN or biometrics) count as two
+  # factors; the option is experimental and pinned to this Authelia version, re-check it on every upgrade.
+  enable_passkey_login: true
+  experimental_enable_passkey_uv_two_factors: true
+  selection_criteria:
+    discoverability: 'required'
+    user_verification: 'required'
+
+authentication_backend:
+  password_reset:
+    disable: false
+  password_change:
+    disable: false
+  ldap:
+    implementation: 'lldap'
+    address: 'ldap://lldap:3890'
+    base_dn: '{{ mustEnv "LDAP_BASE_DN" }}'
+    user: 'uid=authelia,ou=people,{{ mustEnv "LDAP_BASE_DN" }}'
+
+password_policy:
+  zxcvbn:
+    enabled: true
+    min_score: 3
+
+session:
+  name: 'authelia_session'
+  same_site: 'lax'
+  inactivity: '1 day'
+  expiration: '1 week'
+  remember_me: '1 month'
+  cookies:
+    - domain: '{{ mustEnv "AUTH_COOKIE_DOMAIN" }}'
+      authelia_url: '{{ mustEnv "AUTH_PORTAL_URL" }}'
+  redis:
+    host: 'valkey'
+    port: 6379
+
+regulation:
+  max_retries: 5
+  find_time: '10 minutes'
+  ban_time: '30 minutes'
+
+storage:
+  postgres:
+    address: 'tcp://{{ mustEnv "POSTGRES_HOST" }}:5432'
+    database: 'authelia'
+    username: 'authelia'
+
+notifier:
+  smtp:
+    address: '{{ mustEnv "SMTP_ADDRESS" }}'
+    username: '{{ mustEnv "SMTP_USERNAME" }}'
+    sender: '{{ mustEnv "SMTP_SENDER" }}'
+    subject: '{title}'
+
+identity_providers:
+  oidc:
+    enforce_pkce: 'always'
+    jwks:
+      - key_id: 'main'
+        algorithm: 'RS256'
+        use: 'sig'
+        key: {{ env "OIDC_JWK_RS256_B64" | b64dec | trim | mindent 10 "|" | msquote }}
