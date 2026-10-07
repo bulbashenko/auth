@@ -1,0 +1,19 @@
+{
+  "extensionName": { "message": "Вход в почту bulbashenko.com" },
+  "extensionDescription": { "message": "Вход в ящики @bulbashenko.com через auth.bulbashenko.com (OAuth 2.0 с PKCE)." },
+  "optionsTitle": { "message": "Вход в почту" },
+  "optionsIntro": { "message": "Thunderbird хранит токен, чтобы не спрашивать вход каждый раз. Удалите его, чтобы войти заново, например под другой учётной записью или после смены пароля." },
+  "savedTokens": { "message": "Сохранённые токены" },
+  "noTokens": { "message": "Нет" },
+  "signOutPortal": {
+    "message": "Также выйти из $HOST$ в Thunderbird, чтобы при следующем входе спросили passkey или пароль",
+    "placeholders": { "host": { "content": "$1" } }
+  },
+  "clearButton": { "message": "Удалить OAuth-токены" },
+  "confirmClear": { "message": "Удалить сохранённые токены? Thunderbird попросит войти при следующей проверке почты." },
+  "cleared": { "message": "Токены удалены. Thunderbird попросит войти при следующем подключении." },
+  "clearFailed": {
+    "message": "Не удалось удалить токены: $ERROR$",
+    "placeholders": { "error": { "content": "$1" } }
+  }
+}

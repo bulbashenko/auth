@@ -18,7 +18,7 @@ It powers `auth.bulbashenko.com`. The deployment-specific part is [`authelia/ins
 | `authelia/configuration.yml` | Generic Authelia settings: login methods, LDAP, sessions, storage, mail, signing key. |
 | `authelia/instance.yml` | This deployment's OIDC clients, access policies and CORS origins. |
 | `lldap/bootstrap/` | One-shot job that creates the groups and the `authelia` bind user. |
-| `thunderbird-addon/` | Tiny add-on that makes Thunderbird sign in to `@bulbashenko.com` through Authelia, as it does for Gmail. |
+| `thunderbird-addon/` | Add-on that makes Thunderbird sign in to `@bulbashenko.com` through Authelia, as it does for Gmail, with an options page to remove saved tokens. |
 | `scripts/` | Helpers that generate the signing key and client secrets. |
 
 ## Sign-in
@@ -96,13 +96,15 @@ The app needs these settings:
 
 ## Thunderbird
 
-Thunderbird 155+ supports OAuth for any mail server, but it has to be told the provider. The add-on does exactly that for `@bulbashenko.com`. It contains a manifest only, no code.
+Thunderbird 155+ supports OAuth for any mail server, but it has to be told the provider. The add-on does exactly that for `@bulbashenko.com`.
 
 1. Build it with `thunderbird-addon/build.sh`.
 2. Install it: Add-ons and Themes → ⚙ → Install Add-on From File.
 3. Add the account, or switch an existing one to OAuth2 for both IMAP and SMTP. Thunderbird opens the Authelia portal in its own window. To use the system browser instead, set `useExternalBrowser` to `true`; the redirect then goes to a random loopback port.
 
 On other mail domains, change `oauth_provider` in `manifest.json` and the `thunderbird` client in `instance.yml`.
+
+To sign in again (another account, a changed password): Add-ons and Themes → the add-on → Options → **Remove OAuth tokens**. It clears the saved refresh token, the access token in memory and open connections. Optionally it also drops the portal cookies, so the next sign-in asks for a passkey or password. That button needs a small Experiment API (`api/`), so Thunderbird shows the add-on as having full access.
 
 Phones (Thunderbird for Android, Apple Mail, FairEmail) cannot use custom OAuth yet. For them, create an app password in the mail server's account settings.
 

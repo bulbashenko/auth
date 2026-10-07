@@ -1,0 +1,38 @@
+[
+  {
+    "namespace": "oauthTokens",
+    "description": "Lists and removes the OAuth tokens Thunderbird keeps for one issuer.",
+    "functions": [
+      {
+        "name": "list",
+        "type": "function",
+        "async": true,
+        "description": "Returns the saved refresh tokens for the issuer, without their values.",
+        "parameters": [
+          { "name": "issuer", "type": "string", "description": "The add-on's oauth_provider.issuer." }
+        ]
+      },
+      {
+        "name": "clear",
+        "type": "function",
+        "async": true,
+        "description": "Removes the issuer's tokens from memory and the password manager, and drops open connections.",
+        "parameters": [
+          { "name": "issuer", "type": "string" },
+          {
+            "name": "hostnames",
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Mail server host names that use the issuer (oauth_provider.hostnames)."
+          },
+          {
+            "name": "portalHost",
+            "type": "string",
+            "optional": true,
+            "description": "If given, also removes Thunderbird's cookies for this host, so the next sign-in asks for credentials."
+          }
+        ]
+      }
+    ]
+  }
+]

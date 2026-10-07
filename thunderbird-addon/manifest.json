@@ -1,14 +1,20 @@
 {
   "manifest_version": 3,
-  "name": "bulbashenko.com mail sign-in",
-  "description": "Signs in to @bulbashenko.com mailboxes through auth.bulbashenko.com (OAuth 2.0 with PKCE).",
-  "version": "1.1.0",
+  "name": "__MSG_extensionName__",
+  "description": "__MSG_extensionDescription__",
+  "version": "1.2.0",
+  "default_locale": "en",
   "author": "Aleksandr Albekov",
   "homepage_url": "https://github.com/bulbashenko/auth",
   "browser_specific_settings": {
     "gecko": {
       "id": "mail-signin@bulbashenko.com",
-      "strict_min_version": "155.0"
+      "strict_min_version": "155.0",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
     }
   },
   "oauth_provider": {
@@ -27,5 +33,24 @@
     "emailDomains": [
       "bulbashenko.com"
     ]
+  },
+  "options_ui": {
+    "page": "options.html"
+  },
+  "experiment_apis": {
+    "oauthTokens": {
+      "schema": "api/schema.json",
+      "parent": {
+        "scopes": [
+          "addon_parent"
+        ],
+        "paths": [
+          [
+            "oauthTokens"
+          ]
+        ],
+        "script": "api/implementation.js"
+      }
+    }
   }
 }

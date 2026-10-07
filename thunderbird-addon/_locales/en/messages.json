@@ -1,0 +1,19 @@
+{
+  "extensionName": { "message": "bulbashenko.com mail sign-in" },
+  "extensionDescription": { "message": "Signs in to @bulbashenko.com mailboxes through auth.bulbashenko.com (OAuth 2.0 with PKCE)." },
+  "optionsTitle": { "message": "Mail sign-in" },
+  "optionsIntro": { "message": "Thunderbird keeps a token so it does not ask you to sign in every time. Remove it to sign in again, for example with another account or after changing your password." },
+  "savedTokens": { "message": "Saved tokens" },
+  "noTokens": { "message": "None" },
+  "signOutPortal": {
+    "message": "Also sign out of $HOST$ in Thunderbird, so the next sign-in asks for a passkey or password",
+    "placeholders": { "host": { "content": "$1" } }
+  },
+  "clearButton": { "message": "Remove OAuth tokens" },
+  "confirmClear": { "message": "Remove the saved tokens? Thunderbird will ask you to sign in the next time it checks mail." },
+  "cleared": { "message": "Tokens removed. Thunderbird will ask you to sign in the next time it connects." },
+  "clearFailed": {
+    "message": "Could not remove the tokens: $ERROR$",
+    "placeholders": { "error": { "content": "$1" } }
+  }
+}
