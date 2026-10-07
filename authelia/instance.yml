@@ -103,7 +103,8 @@ identity_providers:
         claims_policy: 'mail'
         token_endpoint_auth_method: 'none'
 
-      # Thunderbird 155+ custom OAuth (see thunderbird-addon/). It listens on a random loopback port.
+      # Thunderbird 155+ custom OAuth (see thunderbird-addon/). It listens on a random loopback port and sends the
+      # redirect URI without a trailing slash; any port matches, the path must match exactly.
       - client_id: 'thunderbird'
         client_name: 'Thunderbird'
         public: true
@@ -112,6 +113,7 @@ identity_providers:
         pre_configured_consent_duration: '1 year'
         pkce_challenge_method: 'S256'
         redirect_uris:
+          - 'http://127.0.0.1'
           - 'http://127.0.0.1/'
         audience: ['stalwart']
         requested_audience_mode: 'implicit'
