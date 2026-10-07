@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "bulbashenko.com mail sign-in",
   "description": "Signs in to @bulbashenko.com mailboxes through auth.bulbashenko.com (OAuth 2.0 with PKCE).",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": "Aleksandr Albekov",
   "homepage_url": "https://github.com/bulbashenko/auth",
   "browser_specific_settings": {
@@ -20,8 +20,12 @@
     "redirectionEndpoint": "http://127.0.0.1",
     "scopes": "openid email profile offline_access",
     "usePKCE": true,
-    "useExternalBrowser": true,
-    "hostnames": ["mail.bulbashenko.com"],
-    "emailDomains": ["bulbashenko.com"]
+    "useExternalBrowser": false,
+    "hostnames": [
+      "mail.bulbashenko.com"
+    ],
+    "emailDomains": [
+      "bulbashenko.com"
+    ]
   }
 }

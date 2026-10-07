@@ -100,7 +100,7 @@ Thunderbird 155+ supports OAuth for any mail server, but it has to be told the p
 
 1. Build it with `thunderbird-addon/build.sh`.
 2. Install it: Add-ons and Themes → ⚙ → Install Add-on From File.
-3. Add the account. Thunderbird opens the browser at the Authelia portal.
+3. Add the account, or switch an existing one to OAuth2 for both IMAP and SMTP. Thunderbird opens the Authelia portal in its own window. To use the system browser instead, set `useExternalBrowser` to `true`; the redirect then goes to a random loopback port.
 
 On other mail domains, change `oauth_provider` in `manifest.json` and the `thunderbird` client in `instance.yml`.
 
