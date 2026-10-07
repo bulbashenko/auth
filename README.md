@@ -46,7 +46,7 @@ Groups decide access:
 2. **Application.** + New → Public repository → this repo → Build strategy **Compose**, compose file `compose.yml`. Then:
    - General → Build pipeline: turn on **Preserve repository during deployment**. The config files are bind-mounted from the checkout.
    - Advanced: turn on **Connect to predefined network**, so the stack can reach Postgres and other apps can reach LDAP on `lldap:3890`.
-   - Domains: `authelia` → `https://auth.example.com:9091`, `lldap` → `https://users.example.com:17170`. Put the LLDAP UI behind another access layer, such as Cloudflare Access.
+   - Domains: `authelia` → `https://auth.example.com`, `lldap` → `https://users.example.com`. Coolify routes each domain to the service's first `expose` port. Put the LLDAP UI behind another access layer, such as Cloudflare Access.
 3. **Environment variables.** Coolify generates every `SERVICE_PASSWORD_*` value. Fill in the rest:
 
    | Variable | Example / how to get it |
