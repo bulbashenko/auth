@@ -2,7 +2,7 @@
 #
 # Deployment-specific part for bulbashenko.com: who may sign in where, and the registered OIDC clients.
 # To add a service: add a client (or an access_control rule for forward-auth), push, redeploy.
-# Client secrets are never stored here, only the PBKDF2 digests passed in through the environment.
+# Client secrets are never stored here, only their PBKDF2 digests, passed in Base64 through the environment.
 
 access_control:
   # Forward-auth (Traefik middleware) rules. An app behind the middleware is open to infra admins only, unless a more
@@ -59,7 +59,7 @@ identity_providers:
     clients:
       - client_id: 'cloudflare-access'
         client_name: 'Cloudflare Access'
-        client_secret: '{{ mustEnv "OIDC_CLOUDFLARE_SECRET_DIGEST" }}'
+        client_secret: '{{ mustEnv "OIDC_CLOUDFLARE_SECRET_DIGEST_B64" | b64dec }}'
         authorization_policy: 'infra_admins'
         consent_mode: 'implicit'
         require_pkce: true
@@ -72,7 +72,7 @@ identity_providers:
 
       - client_id: 'bulbashenko-site'
         client_name: 'bulbashenko.com admin'
-        client_secret: '{{ mustEnv "OIDC_SITE_SECRET_DIGEST" }}'
+        client_secret: '{{ mustEnv "OIDC_SITE_SECRET_DIGEST_B64" | b64dec }}'
         authorization_policy: 'site_admins'
         consent_mode: 'implicit'
         require_pkce: true

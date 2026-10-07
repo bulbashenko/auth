@@ -71,6 +71,8 @@ notifier:
     username: '{{ mustEnv "SMTP_USERNAME" }}'
     sender: '{{ mustEnv "SMTP_SENDER" }}'
     subject: '{title}'
+    tls:
+      server_name: '{{ env "SMTP_TLS_SERVER_NAME" }}'
 
 identity_providers:
   oidc:

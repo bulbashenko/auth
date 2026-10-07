@@ -55,17 +55,18 @@ Groups decide access:
    | `AUTH_COOKIE_DOMAIN` | `example.com` (the portal must live under it) |
    | `LDAP_BASE_DN` | `dc=example,dc=com` |
    | `POSTGRES_HOST` | container name of the Postgres resource |
-   | `AUTHELIA_DB_PASSWORD` | password of the `authelia` role |
+   | `AUTH_DB_PASSWORD` | password of the `authelia` role |
    | `LLDAP_DATABASE_URL` | `postgres://lldap:<password>@<host>/lldap` |
    | `LLDAP_HTTP_URL` | `https://users.example.com` |
    | `LLDAP_ADMIN_EMAIL`, `LDAP_BIND_EMAIL` | any addresses you control |
-   | `SMTP_ADDRESS` | `submissions://mail.example.com:465` |
+   | `SMTP_ADDRESS` | `submissions://mail.example.com:465`, or `submissions://host.docker.internal:465` when the mail server runs on the same host |
+| `SMTP_TLS_SERVER_NAME` | optional: the certificate name (e.g. `mail.example.com`) when `SMTP_ADDRESS` uses another host name |
    | `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_SENDER` | a mailbox for login codes, e.g. `noreply@` |
    | `OIDC_JWK_RS256_B64` | `scripts/gen-jwk.sh` |
-   | `OIDC_*_SECRET_DIGEST` | second line of `scripts/new-client-secret.sh`; the first line goes to the app |
+   | `OIDC_*_SECRET_DIGEST_B64` | second line of `scripts/new-client-secret.sh`; the first line goes to the app |
    | `CLOUDFLARE_TEAM_DOMAIN` | `<team>.cloudflareaccess.com` |
 
-   Mark the `OIDC_*_SECRET_DIGEST` values as **literal**. PBKDF2 digests contain `$`, which Coolify would otherwise try to interpolate.
+   Digests are passed in Base64 because they contain `$`, which Compose would interpolate.
 4. **Deploy.** Then sign in to the LLDAP UI as `lldap-admin`. The password is `SERVICE_PASSWORD_LLDAPADMIN`; change it there. Create the people and put them in groups.
 
 ## Add a service
@@ -73,7 +74,7 @@ Groups decide access:
 **App that supports OpenID Connect.**
 1. Run `scripts/new-client-secret.sh`.
 2. Add a client to `authelia/instance.yml`, using an `authorization_policy` that limits it to a group.
-3. Pass the digest through a new `OIDC_*_SECRET_DIGEST` variable.
+3. Pass the digest through a new `OIDC_*_SECRET_DIGEST_B64` variable.
 4. Push and redeploy.
 
 The app needs these settings:
