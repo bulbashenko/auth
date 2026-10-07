@@ -31,7 +31,7 @@ Groups decide access:
 
 | Group | Grants |
 |---|---|
-| `infra-admins` | Cloudflare Access (admin panels) and every forward-auth app by default |
+| `infra-admins` | Admin panels: every forward-auth app by default |
 | `site-admins` | The bulbashenko.com admin panel |
 | `mail-users` | Mail clients and the Stalwart web UI |
 | `lldap_password_manager` | Built-in LLDAP group; only the `authelia` service user is in it |
@@ -46,7 +46,7 @@ Groups decide access:
 2. **Application.** + New → Public repository → this repo → Build strategy **Compose**, compose file `compose.yml`. Then:
    - General → Build pipeline: turn on **Preserve repository during deployment**. The config files are bind-mounted from the checkout.
    - Advanced: turn on **Connect to predefined network**, so the stack can reach Postgres and other apps can reach LDAP on `lldap:3890`.
-   - Domains: `authelia` → `https://auth.example.com`, `lldap` → `https://users.example.com`. Coolify routes each domain to the service's first `expose` port. Put the LLDAP UI behind another access layer, such as Cloudflare Access.
+   - Domains: `authelia` → `https://auth.example.com`, `lldap` → `https://users.example.com`. Coolify routes each domain to the service's first `expose` port. Put the LLDAP UI behind another access layer, such as Authelia forward-auth or a VPN.
 3. **Environment variables.** Coolify generates every `SERVICE_PASSWORD_*` value. Fill in the rest:
 
    | Variable | Example / how to get it |
@@ -64,7 +64,6 @@ Groups decide access:
    | `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_SENDER` | a mailbox for login codes, e.g. `noreply@` |
    | `OIDC_JWK_RS256_B64` | `scripts/gen-jwk.sh` |
    | `OIDC_*_SECRET_DIGEST_B64` | second line of `scripts/new-client-secret.sh`; the first line goes to the app |
-   | `CLOUDFLARE_TEAM_DOMAIN` | `<team>.cloudflareaccess.com` |
 
    Digests are passed in Base64 because they contain `$`, which Compose would interpolate.
 4. **Deploy.** Then sign in to the LLDAP UI as `lldap-admin`. The password is `SERVICE_PASSWORD_LLDAPADMIN`; change it there. Create the people and put them in groups.
