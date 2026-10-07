@@ -34,6 +34,7 @@ Groups decide access:
 | `infra-admins` | Admin panels: every forward-auth app by default |
 | `site-admins` | The bulbashenko.com admin panel |
 | `mail-users` | Mail clients and the Stalwart web UI |
+| `vpn-users` | Joining the VPN mesh (Headscale) |
 | `lldap_password_manager` | Built-in LLDAP group; only the `authelia` service user is in it |
 
 ## Deploy on Coolify

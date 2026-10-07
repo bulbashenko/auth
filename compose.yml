@@ -45,6 +45,7 @@ services:
       # Base64 because the digests contain `$`, which Compose would interpolate.
       OIDC_SITE_SECRET_DIGEST_B64: ${OIDC_SITE_SECRET_DIGEST_B64:?}
       OIDC_COOLIFY_SECRET_DIGEST_B64: ${OIDC_COOLIFY_SECRET_DIGEST_B64:?}
+      OIDC_HEADSCALE_SECRET_DIGEST_B64: ${OIDC_HEADSCALE_SECRET_DIGEST_B64:?}
       # Secrets, mapped straight onto Authelia configuration keys.
       AUTHELIA_SESSION_SECRET: ${SERVICE_PASSWORD_64_SESSION}
       AUTHELIA_SESSION_REDIS_PASSWORD: ${SERVICE_PASSWORD_VALKEY}
