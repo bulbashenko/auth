@@ -27,7 +27,6 @@ identity_providers:
       endpoints: ['token', 'userinfo', 'revocation']
       allowed_origins:
         - 'https://mail.int.bulbashenko.com'
-        - 'https://mailadmin.bulbashenko.com'
 
     authorization_policies:
       site_admins:
@@ -87,7 +86,6 @@ identity_providers:
         pkce_challenge_method: 'S256'
         redirect_uris:
           - 'https://coolify.int.bulbashenko.com/auth/oidc/callback'
-          - 'https://coolify.bulbashenko.com/auth/oidc/callback'
         scopes: ['openid', 'profile', 'email']
         token_endpoint_auth_method: 'client_secret_post'
 
@@ -116,8 +114,6 @@ identity_providers:
         redirect_uris:
           - 'https://mail.int.bulbashenko.com/admin/oauth/callback'
           - 'https://mail.int.bulbashenko.com/account/oauth/callback'
-          - 'https://mailadmin.bulbashenko.com/admin/oauth/callback'
-          - 'https://mailadmin.bulbashenko.com/account/oauth/callback'
         audience: ['stalwart']
         requested_audience_mode: 'implicit'
         scopes: ['openid', 'email', 'profile', 'offline_access']
