@@ -5,18 +5,20 @@ Single sign-on for a small group of people: one account, a passkey (or password 
 - **[Authelia](https://www.authelia.com)** is the OpenID Connect provider and the login portal. It also serves Traefik forward-auth for apps that have no login of their own.
 - **[LLDAP](https://github.com/lldap/lldap)** holds users and groups, has a web UI to manage them, and speaks LDAP to apps that need it.
 - **Valkey** keeps login sessions across restarts.
+- **nginx** serves the portal with the look of bulbashenko.com.
 
 Altogether it runs in about 100 MB of RAM. The stack is a Docker Compose file meant to be deployed by [Coolify](https://coolify.io) straight from this repository. It runs anywhere Compose runs if you fill in the variables yourself.
 
-It powers `auth.bulbashenko.com`. The deployment-specific part is [`authelia/instance.yml`](authelia/instance.yml); everything else is generic.
+It powers `auth.bulbashenko.com`. The deployment-specific parts are [`authelia/instance.yml`](authelia/instance.yml) and the portal theme in [`theme/`](theme/); everything else is generic.
 
 ## Layout
 
 | Path | What it is |
 |---|---|
-| `compose.yml` | The four services and every variable they read. |
+| `compose.yml` | The five services and every variable they read. |
 | `authelia/configuration.yml` | Generic Authelia settings: login methods, LDAP, sessions, storage, mail, signing key. |
 | `authelia/instance.yml` | This deployment's OIDC clients, access policies and CORS origins. |
+| `theme/` | The portal's look: an nginx proxy in front of Authelia that adds `public/theme.css` (and its fonts) to every page. |
 | `lldap/bootstrap/` | One-shot job that creates the groups and the `authelia` bind user. |
 | `thunderbird-addon/` | Add-on that makes Thunderbird sign in to `@bulbashenko.com` through Authelia, as it does for Gmail, with an options page to remove saved tokens. |
 | `scripts/` | Helpers that generate the signing key and client secrets. |
@@ -47,7 +49,7 @@ Groups decide access:
 2. **Application.** + New → Public repository → this repo → Build strategy **Compose**, compose file `compose.yml`. Then:
    - General → Build pipeline: turn on **Preserve repository during deployment**. The config files are bind-mounted from the checkout.
    - Advanced: turn on **Connect to predefined network**, so the stack can reach Postgres and other apps can reach LDAP on `lldap:3890`.
-   - Domains: `authelia` → `https://auth.example.com`, `lldap` → `https://users.example.com`. Coolify routes each domain to the service's first `expose` port. Put the LLDAP UI behind another access layer, such as Authelia forward-auth or a VPN.
+   - Domains: `portal` → `https://auth.example.com`, `lldap` → `https://users.example.com`. Coolify routes each domain to the service's first `expose` port. Put the LLDAP UI behind another access layer, such as Authelia forward-auth or a VPN.
 3. **Environment variables.** Coolify generates every `SERVICE_PASSWORD_*` value. Fill in the rest:
 
    | Variable | Example / how to get it |
@@ -109,6 +111,16 @@ On other mail domains, change `oauth_provider` in `manifest.json` and the `thund
 To sign in again (another account, a changed password): Add-ons and Themes → the add-on → Options → **Remove OAuth tokens**. It clears the saved refresh token, the access token in memory and open connections. Optionally it also drops the portal cookies, so the next sign-in asks for a passkey or password. That button needs a small Experiment API (`api/`), so Thunderbird shows the add-on as having full access.
 
 Phones (Thunderbird for Android, Apple Mail, FairEmail) cannot use custom OAuth yet. For them, create an app password in the mail server's account settings.
+
+## Theme
+
+Authelia has no setting for custom CSS: `server.asset_path` only replaces the logo, the favicon and translations. So the `portal` service, a plain nginx, proxies Authelia and inserts `<link rel="stylesheet" href="/_theme/theme.css">` before `</head>` of every HTML page, and serves `theme/public/` under `/_theme/`. The stylesheet is same-origin, which Authelia's Content Security Policy allows; the fonts are served locally for the same reason (the policy blocks Google Fonts).
+
+- Authelia 4.39's UI is Tailwind with shadcn-style colour variables. `theme.css` mostly remaps those, and otherwise hooks onto ids and `data-slot`/`data-variant` attributes, not generated class names. After an Authelia upgrade, go through the screens anyway: sign-in, second factor, consent, reset password, settings and the TOTP and passkey dialogs.
+- To change the look, edit `theme/public/theme.css`, push and redeploy. The file is served with `Cache-Control: no-cache`, so browsers pick it up at once.
+- To drop the theme, remove the `portal` service and give the auth domain back to `authelia`.
+
+Fonts: Tiny5 and Bitcount Single, both under the SIL Open Font License 1.1.
 
 ## Notes
 
